@@ -11,4 +11,6 @@ members = ["apps/discord"]
 [workspace.dependencies]
 serenity = { version = "0.12.4" }
 thiserror = { version = "2.0.12" }
-chrono = "0.4.41"
+chrono = { version = "0.4.41" }
+tokio = { version = "1.47.0", features = ["full"]}
+dotenvy = { version = "0.15.7" }
