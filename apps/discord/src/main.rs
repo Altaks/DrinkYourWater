@@ -32,8 +32,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .await?;
 
     let cache_http = Arc::clone(&client.http);
-    let every_15_min = every(3)
-        .seconds()
+    let every_15_min = every(1)
+        .minute()
         .perform(move || walk_reminders(cache_http.clone()));
     let _handle = spawn(every_15_min);
 

@@ -58,8 +58,6 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         println!("Cannot respond to slash command: {why}");
     }
 
-    // TODO : MAKE IT A FOLLOW UP
-
     let msg = interaction
         .create_followup(
             &ctx,

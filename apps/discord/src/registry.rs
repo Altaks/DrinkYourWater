@@ -14,7 +14,7 @@ pub enum ReminderFrequency {
 impl From<ReminderFrequency> for TimeDelta {
     fn from(value: ReminderFrequency) -> Self {
         match value {
-            ReminderFrequency::ThirtyMin => TimeDelta::seconds(3),
+            ReminderFrequency::ThirtyMin => TimeDelta::minutes(30),
             ReminderFrequency::OneHour => TimeDelta::minutes(60),
             ReminderFrequency::ThreeHours => TimeDelta::minutes(3 * 60),
         }
