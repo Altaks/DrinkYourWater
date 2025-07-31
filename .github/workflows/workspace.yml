@@ -1,0 +1,124 @@
+# Refer to https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions
+name: Momentum workspace CI
+
+on:
+    push:
+        branches: ["main", "dev", "rc/**"]
+        paths:
+            - "**.rs"
+            - "**.toml"
+            - "**.lock"
+            - ".env.template"
+            - ".github/workflows/**"
+    pull_request:
+        branches: ["main", "dev", "rc/**"]
+        paths:
+            - "**.rs"
+            - "**.toml"
+            - "**.lock"
+            - ".env.template"
+            - ".github/workflows/**"
+
+env:
+    CARGO_TERM_COLOR: always
+
+jobs:
+    # Job that builds the image from scratch
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            # Gets the last usable cache
+            - name: Setup Rust cache
+              uses: Swatinem/rust-cache@v2
+              with:
+                  cache-on-failure: true
+            # Installs Rust & Cargo from rustup source + insert cargo to path
+            - name: Install Rust & Cargo
+              run: |
+                  curl https://sh.rustup.rs -sSf | sh -s -- -y
+                  echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+            # Installs clang & mold
+            - name: Install clang & mold
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install clang mold -y
+            # Builds the server
+            - name: Build
+              run: cargo build --verbose
+
+    test:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            # Gets the last usable cache
+            - name: Setup Rust cache
+              uses: Swatinem/rust-cache@v2
+              with:
+                  cache-on-failure: true
+            # Installs Rust & Cargo from rustup source + insert cargo to path
+            - name: Install Rust & Cargo
+              run: |
+                  curl https://sh.rustup.rs -sSf | sh -s -- -y
+                  echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+            # Installs clang & mold
+            - name: Install clang & mold
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install clang mold -y
+            - name: Run tests
+              run: cargo test --workspace --verbose
+
+    lint:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            # Gets the last usable cache
+            - name: Setup Rust cache
+              uses: Swatinem/rust-cache@v2
+              with:
+                  cache-on-failure: true
+            # Installs Rust & Cargo from rustup source + insert cargo to path
+            - name: Install Rust & Cargo
+              run: |
+                  curl https://sh.rustup.rs -sSf | sh -s -- -y
+                  echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+            # Installs clang & mold
+            - name: Install clang & mold
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install clang mold -y
+            - name: Run clippy
+              run: cargo clippy --all --all-targets --all-features
+
+    dependencies-check:
+        needs: [test, lint]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            # Gets the last usable cache
+            - name: Setup Rust cache
+              uses: Swatinem/rust-cache@v2
+              with:
+                  cache-on-failure: true
+            # Installs Rust & Cargo from rustup source + insert cargo to path
+            - name: Install Rust & Cargo
+              run: |
+                  curl https://sh.rustup.rs -sSf | sh -s -- -y
+                  echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+            # Installs clang & mold
+            - name: Install clang & mold
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install clang mold -y
+            # Installs cargo audit & outdated
+            - name: Install cargo audit & outdated
+              run: cargo install cargo-audit cargo-outdated
+            # Checks for security leaks in dependencies
+            - name: Run audits
+              run: cargo audit
+            # Checks for unmaintained / outdated dependencies
+            - name: Run outdated checks
+              run: cargo outdated --verbose

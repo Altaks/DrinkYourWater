@@ -3,12 +3,5 @@
 version = 4
 
 [[package]]
-name = "main"
-version = "0.1.0"
-dependencies = [
- "main_lib",
-]
-
-[[package]]
-name = "main_lib"
+name = "discord"
 version = "0.1.0"

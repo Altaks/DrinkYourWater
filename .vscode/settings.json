@@ -5,9 +5,7 @@
     "editor.fontFamily": "'CaskaydiaCove Nerd Font', 'JetBrains Mono', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
     "editor.fontLigatures": true,
     "editor.fontWeight": "normal",
-    "editor.rulers": [
-        170
-    ],
+    "editor.rulers": [170],
     "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairs": "active",
     //----------------------------------------------------------------------
@@ -19,16 +17,9 @@
     "emmet.includeLanguages": {
         "rust": "rs"
     },
-    "emmet.extensionsPath": [
-        ""
-    ],
+    "emmet.extensionsPath": [""],
     "files.associations": {
-        "*.tf": "terraform",
-        "*.hcl": "hcl",
         "*.css": "tailwindcss"
-    },
-    "tailwindCSS.includeLanguages": {
-        "rust": "html",
     },
     "editor.tabSize": 4,
     "editor.detectIndentation": false,
@@ -59,33 +50,30 @@
     "git.autofetch": true,
     "git.autofetchPeriod": 60,
     "git.ignoreLimitWarning": true,
-    //----------------------------------------------------------------------
-    // MISC
-    //----------------------------------------------------------------------
-    "rest-client.enableTelemetry": false,
+    "git.enableCommitSigning": true,
     //----------------------------------------------------------------------
     // LANGUAGE SPECIFICS
     //----------------------------------------------------------------------
     "[css]": {
-        // "editor.defaultFormatter": "embertooling.prettier-for-handlebars-vscode",
         "editor.formatOnSave": false
     },
     "[sql]": {
-        // "editor.defaultFormatter": "embertooling.prettier-for-handlebars-vscode",
         "editor.formatOnSave": false
     },
     "[html]": {
-        // "editor.defaultFormatter": "embertooling.prettier-for-handlebars-vscode",
-        "editor.formatOnSave": false
-    },
-    "[xml]": {
-        // "editor.defaultFormatter": "embertooling.prettier-for-handlebars-vscode",
         "editor.formatOnSave": false
     },
     "[rust]": {
-        "editor.formatOnSave": true,
-        // "editor.defaultFormatter": "rust-lang.rust-analyzer"
+        "editor.formatOnSave": true
     },
-    "yaml.maxItemsComputed": 50000,
-    "crates.listPreReleases": true,
+    "[json]": {
+        "editor.formatOnSave": true
+    },
+    "[jsonc]": {
+        "editor.formatOnSave": true
+    },
+    "[toml]": {
+        "editor.formatOnSave": true
+    },
+    "crates.listPreReleases": true
 }
