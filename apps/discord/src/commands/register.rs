@@ -2,8 +2,8 @@ use std::time::Duration;
 
 use serenity::all::{
     Colour, CommandInteraction, CommandOptionType, CreateCommand, CreateCommandOption, CreateEmbed,
-    CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, ResolvedOption,
-    ResolvedValue, prelude::*,
+    CreateInteractionResponse, CreateInteractionResponseFollowup, CreateInteractionResponseMessage,
+    ResolvedOption, ResolvedValue, prelude::*,
 };
 
 use crate::{
@@ -61,14 +61,14 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     // TODO : MAKE IT A FOLLOW UP
 
     let msg = interaction
-        .channel_id
-        .send_message(
+        .create_followup(
             &ctx,
-            CreateMessage::new()
+            CreateInteractionResponseFollowup::new()
                 .embed(choice_embed)
                 .button(get_30min_button())
                 .button(get_1h_button())
-                .button(get_3h_button()),
+                .button(get_3h_button())
+                .ephemeral(true),
         )
         .await?;
 
