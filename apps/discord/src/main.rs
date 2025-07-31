@@ -2,7 +2,8 @@ use std::{env, error::Error};
 
 use serenity::{
     all::{
-        CreateInteractionResponse, CreateInteractionResponseMessage, GuildId, Interaction, Ready,
+        ComponentInteraction, ComponentInteractionDataKind, CreateInteractionResponse,
+        CreateInteractionResponseMessage, GuildId, Interaction, Ready,
     },
     async_trait,
     prelude::*,

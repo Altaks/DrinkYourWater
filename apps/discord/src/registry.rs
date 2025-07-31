@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    sync::{LazyLock, Mutex},
+    sync::LazyLock,
 };
 
 use chrono::NaiveDateTime;
