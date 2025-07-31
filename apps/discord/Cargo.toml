@@ -11,3 +11,4 @@ serenity = { workspace = true }
 thiserror = { workspace = true }
 chrono = { workspace = true }
 dotenvy = { workspace = true }
+tokio_schedule = { workspace = true }

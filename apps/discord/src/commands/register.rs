@@ -112,7 +112,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
             CreateInteractionResponse::Message(
                 CreateInteractionResponseMessage::new()
                     .content(format!(
-                        "Vous avez indiqué vouloir être rappelé toutes les {}",
+                        "Vous serez rappelé(e) toutes les {}",
                         frequency.to_string()
                     ))
                     .ephemeral(true),

@@ -1,4 +1,4 @@
-use std::{env, error::Error};
+use std::{env, error::Error, sync::Arc};
 
 use serenity::{
     all::{
@@ -7,10 +7,15 @@ use serenity::{
     async_trait,
     prelude::*,
 };
+use tokio::spawn;
+use tokio_schedule::{Job, every};
+
+use crate::reminder::walk_reminders;
 
 mod buttons;
 mod commands;
 mod registry;
+mod reminder;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -25,6 +30,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mut client = Client::builder(&token, intents)
         .event_handler(Handler)
         .await?;
+
+    let cache_http = Arc::clone(&client.http);
+    let every_15_min = every(3)
+        .seconds()
+        .perform(move || walk_reminders(cache_http.clone()));
+    let _handle = spawn(every_15_min);
 
     if let Err(reason) = client.start_autosharded().await {
         println!("Client error while starting : {:?}", reason);
