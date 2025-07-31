@@ -2,13 +2,13 @@ use std::{env, error::Error};
 
 use serenity::{
     all::{
-        ComponentInteraction, ComponentInteractionDataKind, CreateInteractionResponse,
-        CreateInteractionResponseMessage, GuildId, Interaction, Ready,
+        CreateInteractionResponse, CreateInteractionResponseMessage, GuildId, Interaction, Ready,
     },
     async_trait,
     prelude::*,
 };
 
+mod buttons;
 mod commands;
 mod registry;
 

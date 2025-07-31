@@ -1,10 +1,17 @@
+use std::time::Duration;
+
 use serenity::all::{
-    ButtonStyle, Colour, CommandInteraction, CommandOptionType, CreateButton, CreateCommand,
-    CreateCommandOption, CreateEmbed, CreateInteractionResponse, CreateInteractionResponseMessage,
-    ResolvedOption, ResolvedValue, prelude::*,
+    Colour, CommandInteraction, CommandOptionType, CreateCommand, CreateCommandOption, CreateEmbed,
+    CreateInteractionResponse, CreateInteractionResponseMessage, CreateMessage, ResolvedOption,
+    ResolvedValue, prelude::*,
 };
 
-use crate::registry::{insert_new_user_to_remind, lookup_active_reminders_count};
+use crate::{
+    buttons::register_buttons::{
+        get_1h_button, get_3h_button, get_30min_button, resolve_user_choice,
+    },
+    registry::{insert_new_user_to_remind, lookup_active_reminders_count},
+};
 
 pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), serenity::Error> {
     let options = &interaction.data.options();
@@ -18,30 +25,6 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     } else {
         &interaction.user
     };
-
-    let msg = format!(
-        "User {} with id {} has been registered for reminders",
-        target.name, target.id
-    );
-    insert_new_user_to_remind(target).await;
-    println!("{msg}");
-    println!(
-        "There are now {} active reminders !",
-        lookup_active_reminders_count().await
-    );
-
-    let button30min = CreateButton::new("button30min")
-        .label("30min")
-        .emoji('💧')
-        .style(ButtonStyle::Secondary);
-    let button1hour = CreateButton::new("button1h")
-        .label("1h")
-        .emoji('💦')
-        .style(ButtonStyle::Primary);
-    let button3hours = CreateButton::new("button3h")
-        .label("3h")
-        .emoji('🌊')
-        .style(ButtonStyle::Primary);
 
     let info_embed = CreateEmbed::new()
         .colour(Colour::new(0xFFFFFF))
@@ -68,16 +51,74 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 
     let data = CreateInteractionResponseMessage::new()
         .add_embed(info_embed)
-        .add_embed(choice_embed)
-        .button(button30min)
-        .button(button1hour)
-        .button(button3hours)
         .ephemeral(true);
 
     let builder = CreateInteractionResponse::Message(data);
     if let Err(why) = interaction.create_response(&ctx.http, builder).await {
         println!("Cannot respond to slash command: {why}");
     }
+
+    // TODO : MAKE IT A FOLLOW UP
+
+    let msg = interaction
+        .channel_id
+        .send_message(
+            &ctx,
+            CreateMessage::new()
+                .embed(choice_embed)
+                .button(get_30min_button())
+                .button(get_1h_button())
+                .button(get_3h_button()),
+        )
+        .await?;
+
+    let interaction = match msg
+        .await_component_interaction(&ctx.shard)
+        .timeout(Duration::from_secs(60 * 3))
+        .await
+    {
+        Some(x) => x,
+        None => {
+            msg.reply_ping(&ctx, "Vous n'avez pas indiqué de valeur pendant 3 minutes, vous devrez vous réenregistrer la prochaine fois").await?;
+            return Ok(());
+        }
+    };
+
+    let choice = match &interaction.data.kind {
+        serenity::all::ComponentInteractionDataKind::Button => &interaction.data.custom_id,
+        _ => {
+            msg.reply_ping(&ctx, "This interaction is not possible >:(")
+                .await?;
+            return Ok(());
+        }
+    };
+
+    let frequency = resolve_user_choice(choice)?;
+    insert_new_user_to_remind(target, frequency).await;
+
+    let msg = format!(
+        "User {} with id {} has been registered for reminders",
+        target.name, target.id
+    );
+    println!("{msg}");
+    println!(
+        "There are now {} active reminders !",
+        lookup_active_reminders_count().await
+    );
+
+    interaction
+        .create_response(
+            &ctx,
+            CreateInteractionResponse::Message(
+                CreateInteractionResponseMessage::new()
+                    .content(format!(
+                        "Vous avez indiqué vouloir être rappelé toutes les {}",
+                        frequency.to_string()
+                    ))
+                    .ephemeral(true),
+            ),
+        )
+        .await?;
 
     Ok(())
 }
