@@ -33,7 +33,7 @@ pub async fn walk_reminders(cache_http: impl CacheHttp) {
             "User {} last remind is at {} with a frequency of {:?}",
             user.name,
             last_remind,
-            REGISTRED_USERS.read().await.get(&user)
+            REGISTRED_USERS.read().await.get(user)
         );
     }
 
