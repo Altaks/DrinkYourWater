@@ -5,6 +5,7 @@ use serenity::all::{
     CreateInteractionResponse, CreateInteractionResponseFollowup, CreateInteractionResponseMessage,
     ResolvedOption, ResolvedValue, prelude::*,
 };
+use tracing::info;
 
 use crate::{
     buttons::register_buttons::{
@@ -55,7 +56,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 
     let builder = CreateInteractionResponse::Message(data);
     if let Err(why) = interaction.create_response(&ctx.http, builder).await {
-        println!("Cannot respond to slash command: {why}");
+        info!("Cannot respond to slash command: {why}");
     }
 
     let msg = interaction
@@ -98,8 +99,8 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
         "User {} with id {} has been registered for reminders",
         target.name, target.id
     );
-    println!("{msg}");
-    println!(
+    info!("{msg}");
+    info!(
         "There are now {} active reminders !",
         lookup_active_reminders_count().await
     );
@@ -109,10 +110,7 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
             &ctx,
             CreateInteractionResponse::Message(
                 CreateInteractionResponseMessage::new()
-                    .content(format!(
-                        "Vous serez rappelé(e) toutes les {}",
-                        frequency.to_string()
-                    ))
+                    .content(format!("Vous serez rappelé(e) toutes les {}", frequency))
                     .ephemeral(true),
             ),
         )

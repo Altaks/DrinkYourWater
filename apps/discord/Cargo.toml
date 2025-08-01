@@ -6,9 +6,23 @@ authors.workspace = true
 license.workspace = true
 
 [dependencies]
+# Async and tasks
 tokio = { workspace = true }
-serenity = { workspace = true }
-thiserror = { workspace = true }
-chrono = { workspace = true }
-dotenvy = { workspace = true }
 tokio_schedule = { workspace = true }
+
+# Discord API
+serenity = { workspace = true }
+
+# Error management
+thiserror = { workspace = true }
+
+# Duration and time handling
+chrono = { workspace = true }
+
+# Environment variables
+dotenvy = { workspace = true }
+
+# Logging system
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+console-subscriber = { workspace = true }
