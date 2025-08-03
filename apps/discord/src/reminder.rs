@@ -1,16 +1,25 @@
 use chrono::TimeDelta;
 use serenity::all::{CacheHttp, CreateMessage, User};
 use tracing::{error, info, warn};
+use rand::{rng, Rng};
+use crate::data::messages::*;
 
 use crate::registry::{
     LAST_REMINDED_TIME, REGISTRED_USERS, ReminderFrequency, update_user_to_reminder,
 };
 
+
 async fn dm_user_reminder(cache_http: &impl CacheHttp, user: &User, freq: ReminderFrequency) {
-    let content = match freq {
-        ReminderFrequency::ThirtyMin => "💧 C'est l'heure de boire un peu d'eau ! 💧",
-        ReminderFrequency::OneHour => "💧 C'est l'heure de boire un verre d'eau ! 💧",
-        ReminderFrequency::ThreeHours => "💧 C'est l'heure de boire une grande quantité d'eau ! 💧",
+    let content : &'static str = match freq {
+        ReminderFrequency::ThirtyMin => {
+            REMINDER_MESSAGE_THIRTY_MIN.get(rng().random_range(0..(REMINDER_MESSAGE_THIRTY_MIN.len()-1))).unwrap()
+        },
+        ReminderFrequency::OneHour => {
+            REMINDER_MESSAGE_ONE_HOUR.get(rng().random_range(0..(REMINDER_MESSAGE_ONE_HOUR.len()-1))).unwrap()
+        },
+        ReminderFrequency::ThreeHours => {
+            REMINDER_MESSAGE_THREE_HOURS.get(rng().random_range(0..(REMINDER_MESSAGE_THREE_HOURS.len()-1))).unwrap()
+        },
     };
 
     info!("DM'ing user {} for its reminder", user.name);
