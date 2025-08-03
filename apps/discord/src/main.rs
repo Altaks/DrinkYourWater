@@ -18,6 +18,7 @@ mod commands;
 mod logging;
 mod registry;
 mod reminder;
+mod data;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
