@@ -15,6 +15,7 @@ serenity = { workspace = true }
 
 # Error management
 thiserror = { workspace = true }
+anyhow = "1.0"
 
 # Duration and time handling
 chrono = { workspace = true }
@@ -29,3 +30,7 @@ rand = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
 console-subscriber = { workspace = true }
+
+# Database
+rusqlite = { version = "0.32", features = ["bundled"] }
+tokio-rusqlite = "0.6"

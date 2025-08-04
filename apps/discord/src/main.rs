@@ -1,4 +1,4 @@
-use std::{env, error::Error, sync::Arc};
+use std::{env, sync::Arc};
 
 use serenity::{
     all::{
@@ -11,21 +11,29 @@ use tokio::spawn;
 use tokio_schedule::{Job, every};
 use tracing::{error, info};
 
-use crate::{logging::init_logging_system, reminder::walk_reminders};
+use crate::{
+    database::init_database, logging::init_logging_system, registry::load_users_from_database,
+    reminder::walk_reminders,
+};
 
 mod buttons;
 mod commands;
+mod data;
+mod database;
 mod logging;
 mod registry;
 mod reminder;
-mod data;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> anyhow::Result<()> {
     init_logging_system();
 
     dotenvy::dotenv()?;
     info!("Environment variables have been loaded");
+
+    // Initialize database
+    init_database().await?;
+    info!("Database initialized successfully");
 
     let token = env::var("DISCORD_BOT_TOKEN")?;
     info!("Discord bot token has been found, not checked tho.");
@@ -38,6 +46,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .event_handler(Handler)
         .await?;
     info!("Client has been prepared");
+
+    // Load existing users from database
+    load_users_from_database(&client.http).await;
+    info!("Loaded existing users from database");
 
     let cache_http = Arc::clone(&client.http);
     let every_1_min = every(1)
@@ -69,7 +81,13 @@ impl EventHandler for Handler {
         let guild_id = GuildId::new(guild_id);
 
         let commands = guild_id
-            .set_commands(&ctx.http, vec![commands::register::register()])
+            .set_commands(
+                &ctx.http,
+                vec![
+                    commands::register::register(),
+                    commands::unregister::register(),
+                ],
+            )
             .await;
 
         info!("I now have the following guild slash commands : {commands:?}");
@@ -81,6 +99,13 @@ impl EventHandler for Handler {
                 "register" => {
                     if let Err(why) = commands::register::run(&ctx, &command).await {
                         error!("The register command failed : {}", why);
+                        return;
+                    }
+                    None
+                }
+                "unregister" => {
+                    if let Err(why) = commands::unregister::run(&ctx, &command).await {
+                        error!("The unregister command failed : {}", why);
                         return;
                     }
                     None

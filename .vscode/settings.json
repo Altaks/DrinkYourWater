@@ -2,10 +2,12 @@
     //----------------------------------------------------------------------
     // FONT & DISPLAY
     //----------------------------------------------------------------------
-    "editor.fontFamily": "'CaskaydiaCove Nerd Font', 'JetBrains Mono', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
+    "editor.fontFamily": "'Caskaydia Cove Nerd Font', 'JetBrains Mono', 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'",
     "editor.fontLigatures": true,
     "editor.fontWeight": "normal",
-    "editor.rulers": [170],
+    "editor.rulers": [
+        170
+    ],
     "editor.bracketPairColorization.enabled": true,
     "editor.guides.bracketPairs": "active",
     //----------------------------------------------------------------------
@@ -17,7 +19,9 @@
     "emmet.includeLanguages": {
         "rust": "rs"
     },
-    "emmet.extensionsPath": [""],
+    "emmet.extensionsPath": [
+        ""
+    ],
     "files.associations": {
         "*.css": "tailwindcss"
     },
@@ -50,7 +54,7 @@
     "git.autofetch": true,
     "git.autofetchPeriod": 60,
     "git.ignoreLimitWarning": true,
-    "git.enableCommitSigning": true,
+    // "git.enableCommitSigning": true,
     //----------------------------------------------------------------------
     // LANGUAGE SPECIFICS
     //----------------------------------------------------------------------

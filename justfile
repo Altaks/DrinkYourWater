@@ -17,7 +17,7 @@ lint:
 
 alias r := run
 run:
-    cargo run
+    cargo run --package discord
 
 # GitHub Actions related
 run_ci:
