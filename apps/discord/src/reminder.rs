@@ -1,7 +1,7 @@
 use chrono::TimeDelta;
 use serenity::all::{CacheHttp, CreateMessage, User};
 use tracing::{error, info, warn};
-use rand::{rng, Rng};
+use rand::random_range;
 use crate::data::messages::*;
 
 use crate::registry::{
@@ -12,13 +12,13 @@ use crate::registry::{
 async fn dm_user_reminder(cache_http: &impl CacheHttp, user: &User, freq: ReminderFrequency) {
     let content : &'static str = match freq {
         ReminderFrequency::ThirtyMin => {
-            REMINDER_MESSAGE_THIRTY_MIN.get(rng().random_range(0..(REMINDER_MESSAGE_THIRTY_MIN.len()-1))).unwrap()
+            REMINDER_MESSAGE_THIRTY_MIN.get(random_range(0..(REMINDER_MESSAGE_THIRTY_MIN.len()))).unwrap_or(&ERROR_MESSAGE)
         },
         ReminderFrequency::OneHour => {
-            REMINDER_MESSAGE_ONE_HOUR.get(rng().random_range(0..(REMINDER_MESSAGE_ONE_HOUR.len()-1))).unwrap()
+            REMINDER_MESSAGE_ONE_HOUR.get(random_range(0..(REMINDER_MESSAGE_ONE_HOUR.len()))).unwrap_or(&ERROR_MESSAGE)
         },
         ReminderFrequency::ThreeHours => {
-            REMINDER_MESSAGE_THREE_HOURS.get(rng().random_range(0..(REMINDER_MESSAGE_THREE_HOURS.len()-1))).unwrap()
+            REMINDER_MESSAGE_THREE_HOURS.get(random_range(0..(REMINDER_MESSAGE_THREE_HOURS.len()))).unwrap_or(&ERROR_MESSAGE)
         },
     };
 
