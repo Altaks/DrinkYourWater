@@ -76,24 +76,48 @@ pub async fn remove_user_from_reminders(user: &User) {
     }
 }
 
+pub async fn load_users_from_database(cache_http: impl serenity::all::CacheHttp) {
 pub async fn load_users_from_database(cache_http: impl CacheHttp) {
     match database::load_user_reminders().await {
-        Ok((_users_data, _last_reminded_times_data)) => {
-            // Load users from the database into the registries
-            for (user, frequency) in _users_data {
-                let user_id: UserId = UserId::new(user.id);
-                if let Ok(user) = user_id.to_user(&cache_http).await {
-                    insert_new_user_to_remind(&user, frequency).await;
-                } else {
-                    error!(
-                        "Failed to load user {} from database: {}",
-                        user.name, user.id
-                    );
+        Ok((users_data, last_reminded_times_data)) => {
+            use crate::registry::{LAST_REMINDED_TIME, REGISTRED_USERS};
+            use serenity::all::UserId;
+            use tracing::warn;
+            let mut loaded = 0;
+            for (user_data, freq) in users_data.iter() {
+                let user_id = UserId::new(user_data.id);
+                match user_id.to_user(&cache_http).await {
+                    Ok(user) => {
+                        if let Some(date) = last_reminded_times_data.get(user_data) {
+                            REGISTRED_USERS.write().await.insert(user.clone(), *freq);
+                            LAST_REMINDED_TIME.write().await.insert(user.clone(), *date);
+                            loaded += 1;
+                        } else {
+                            warn!(
+                                "Utilisateur {} (id: {}) ignoré : pas de date de dernier rappel.",
+                                user_data.name, user_data.id
+                            );
+                        }
+                    }
+                    Err(e) => {
+                        warn!(
+                            "Impossible de charger l'utilisateur {} (id: {}): {}",
+                            user_data.name, user_data.id, e
+                        );
+                    }
                 }
             }
+            info!(
+                "Chargé {}/{} utilisateurs depuis la base de données",
+                loaded,
+                users_data.len()
+            );
         }
         Err(e) => {
-            error!("Failed to load users from database: {}", e);
+            error!(
+                "Échec du chargement des utilisateurs depuis la base de données: {}",
+                e
+            );
         }
     }
 }
