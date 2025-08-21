@@ -34,3 +34,6 @@ console-subscriber = { workspace = true }
 # Database
 rusqlite = { version = "0.32", features = ["bundled"] }
 tokio-rusqlite = "0.6"
+
+[lints]
+workspace = true
