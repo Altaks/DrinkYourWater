@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::LazyLock};
 
 use chrono::{NaiveDateTime, TimeDelta};
-use serenity::all::{CacheHttp, User, UserId};
+use serenity::all::{CacheHttp, User};
 use tokio::sync::RwLock;
 use tracing::{error, info};
 
@@ -17,7 +17,7 @@ pub enum ReminderFrequency {
 impl From<ReminderFrequency> for TimeDelta {
     fn from(value: ReminderFrequency) -> Self {
         match value {
-            ReminderFrequency::ThirtyMin => TimeDelta::seconds(5),
+            ReminderFrequency::ThirtyMin => TimeDelta::minutes(30),
             ReminderFrequency::OneHour => TimeDelta::hours(1),
             ReminderFrequency::ThreeHours => TimeDelta::hours(3),
         }
@@ -76,7 +76,6 @@ pub async fn remove_user_from_reminders(user: &User) {
     }
 }
 
-pub async fn load_users_from_database(cache_http: impl serenity::all::CacheHttp) {
 pub async fn load_users_from_database(cache_http: impl CacheHttp) {
     match database::load_user_reminders().await {
         Ok((users_data, last_reminded_times_data)) => {
