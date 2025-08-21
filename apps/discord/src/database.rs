@@ -73,9 +73,9 @@ pub async fn save_user_reminder(
     last_reminded: NaiveDateTime,
 ) -> SqliteResult<()> {
     let db_guard = DATABASE.lock().await;
-    let conn = db_guard.as_ref().ok_or_else(|| {
-        rusqlite::Error::InvalidPath("Database not initialized".to_string().into())
-    })?;
+    let conn = db_guard
+        .as_ref()
+        .ok_or_else(|| rusqlite::Error::InvalidPath("Database not initialized".into()))?;
 
     let frequency_str = match frequency {
         ReminderFrequency::ThirtyMin => "ThirtyMin",

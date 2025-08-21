@@ -26,11 +26,10 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     // Remove user from reminders
     remove_user_from_reminders(user).await;
 
-    let msg = format!(
+    info!(
         "User {} with id {} has been unregistered from reminders",
         user.name, user.id
     );
-    info!("{msg}");
     info!(
         "There are now {} active reminders !",
         lookup_active_reminders_count().await
