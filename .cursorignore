@@ -8,3 +8,5 @@
 **/*.db-wal
 **/*.db-shm
 **/*.db-wal
+
+~/.cargo/**/*

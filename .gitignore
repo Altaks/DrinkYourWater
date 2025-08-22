@@ -18,3 +18,6 @@ target/
 
 .env
 **/*.sqlite
+
+# Cargo audit database
+~/.cargo/**/*
