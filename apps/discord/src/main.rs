@@ -86,6 +86,9 @@ impl EventHandler for Handler {
                 vec![
                     commands::register::register(),
                     commands::unregister::register(),
+                    commands::add_msg::register(),
+                    commands::list_msg::register(),
+                    commands::remove_msg::register(),
                 ],
             )
             .await;
@@ -106,6 +109,27 @@ impl EventHandler for Handler {
                 "unregister" => {
                     if let Err(why) = commands::unregister::run(&ctx, &command).await {
                         error!("The unregister command failed : {}", why);
+                        return;
+                    }
+                    None
+                }
+                "add_msg" => {
+                    if let Err(why) = commands::add_msg::run(&ctx, &command).await {
+                        error!("The add_msg command failed : {}", why);
+                        return;
+                    }
+                    None
+                }
+                "list_msg" => {
+                    if let Err(why) = commands::list_msg::run(&ctx, &command).await {
+                        error!("The list_msg command failed : {}", why);
+                        return;
+                    }
+                    None
+                }
+                "remove_msg" => {
+                    if let Err(why) = commands::remove_msg::run(&ctx, &command).await {
+                        error!("The remove_msg command failed : {}", why);
                         return;
                     }
                     None

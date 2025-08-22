@@ -62,6 +62,19 @@ async fn create_database(db_path: &str) -> SqliteResult<()> {
         [],
     )?;
 
+    // Create custom messages table
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS custom_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            message_type TEXT NOT NULL,
+            message TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            UNIQUE(message_type)
+        )",
+        [],
+    )?;
+
     info!("Database created successfully");
     *DATABASE.lock().await = Some(conn);
     Ok(())
@@ -197,4 +210,90 @@ pub async fn update_user_last_reminded(
         user.name
     );
     Ok(())
+}
+
+pub async fn add_custom_message(
+    user_id: u64,
+    message_type: &str,
+    message: &str,
+) -> SqliteResult<()> {
+    let db_guard = DATABASE.lock().await;
+    let conn = db_guard.as_ref().ok_or_else(|| {
+        rusqlite::Error::InvalidPath("Database not initialized".to_string().into())
+    })?;
+
+    conn.execute(
+        "INSERT OR REPLACE INTO custom_messages (user_id, message_type, message, created_at) 
+         VALUES (?1, ?2, ?3, ?4)",
+        rusqlite::params![
+            user_id as i64,
+            message_type,
+            message,
+            chrono::Utc::now().naive_utc().to_string()
+        ],
+    )?;
+
+    info!(
+        "Added custom message for type '{}' by user {}",
+        message_type, user_id
+    );
+    Ok(())
+}
+
+pub async fn get_custom_message(message_type: &str) -> SqliteResult<Option<String>> {
+    let db_guard = DATABASE.lock().await;
+    let conn = db_guard.as_ref().ok_or_else(|| {
+        rusqlite::Error::InvalidPath("Database not initialized".to_string().into())
+    })?;
+
+    let mut stmt = conn.prepare("SELECT message FROM custom_messages WHERE message_type = ?1")?;
+
+    let mut rows = stmt.query(rusqlite::params![message_type])?;
+
+    if let Some(row) = rows.next()? {
+        let message: String = row.get(0)?;
+        Ok(Some(message))
+    } else {
+        Ok(None)
+    }
+}
+
+pub async fn remove_custom_message(message_type: &str) -> SqliteResult<()> {
+    let db_guard = DATABASE.lock().await;
+    let conn = db_guard.as_ref().ok_or_else(|| {
+        rusqlite::Error::InvalidPath("Database not initialized".to_string().into())
+    })?;
+
+    conn.execute(
+        "DELETE FROM custom_messages WHERE message_type = ?1",
+        rusqlite::params![message_type],
+    )?;
+
+    info!("Removed custom message for type '{}'", message_type);
+    Ok(())
+}
+
+pub async fn list_custom_messages() -> SqliteResult<Vec<(String, String, u64)>> {
+    let db_guard = DATABASE.lock().await;
+    let conn = db_guard.as_ref().ok_or_else(|| {
+        rusqlite::Error::InvalidPath("Database not initialized".to_string().into())
+    })?;
+
+    let mut stmt = conn.prepare(
+        "SELECT message_type, message, user_id FROM custom_messages ORDER BY message_type",
+    )?;
+
+    let rows = stmt.query_map([], |row| {
+        let message_type: String = row.get(0)?;
+        let message: String = row.get(1)?;
+        let user_id: i64 = row.get(2)?;
+        Ok((message_type, message, user_id as u64))
+    })?;
+
+    let mut messages = Vec::new();
+    for result in rows {
+        messages.push(result?);
+    }
+
+    Ok(messages)
 }

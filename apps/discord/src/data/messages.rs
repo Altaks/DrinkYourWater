@@ -37,7 +37,7 @@ En bref buvez un verre d'eau.",
 Savez-vous quel est le point commun entre Sushi et vous ?
 
 Vous buvez tous les deux de l'eau. D'ailleurs...
-💧 C'est l'heure de boire un verre d'eau ! 💧"
+💧 C'est l'heure de boire un verre d'eau ! 💧",
 ];
 
 pub const REMINDER_MESSAGE_THREE_HOURS: [&str; 4] = [
