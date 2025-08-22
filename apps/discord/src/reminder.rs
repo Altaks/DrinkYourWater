@@ -1,7 +1,6 @@
-use crate::data::messages::*;
 use crate::database::get_custom_message;
+use crate::helpers::content::get_default_message;
 use chrono::TimeDelta;
-use rand::random_range;
 use serenity::all::{CacheHttp, CreateMessage, User};
 use tracing::{error, info, warn};
 
@@ -17,23 +16,9 @@ async fn dm_user_reminder(cache_http: &impl CacheHttp, user: &User, freq: Remind
         ReminderFrequency::ThreeHours => "three_hours",
     };
 
-    let content = if let Ok(Some(custom_msg)) = get_custom_message(message_type).await {
-        // Use custom message
-        custom_msg
-    } else {
-        // Fall back to default messages
-        let default_content: &'static str = match freq {
-            ReminderFrequency::ThirtyMin => REMINDER_MESSAGE_THIRTY_MIN
-                .get(random_range(0..(REMINDER_MESSAGE_THIRTY_MIN.len())))
-                .unwrap_or(&ERROR_MESSAGE),
-            ReminderFrequency::OneHour => REMINDER_MESSAGE_ONE_HOUR
-                .get(random_range(0..(REMINDER_MESSAGE_ONE_HOUR.len())))
-                .unwrap_or(&ERROR_MESSAGE),
-            ReminderFrequency::ThreeHours => REMINDER_MESSAGE_THREE_HOURS
-                .get(random_range(0..(REMINDER_MESSAGE_THREE_HOURS.len())))
-                .unwrap_or(&ERROR_MESSAGE),
-        };
-        default_content.to_string()
+    let content = match get_custom_message(message_type).await {
+        Ok(Some(msg)) => msg,
+        _ => get_default_message(freq).to_string(),
     };
 
     info!("DM'ing user {} for its reminder", user.name);

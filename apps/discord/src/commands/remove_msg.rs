@@ -50,37 +50,34 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     }
 
     // Remove the custom message
-    match remove_custom_message(message_type).await {
-        Ok(_) => {
-            let embed = CreateEmbed::new()
-                .colour(Colour::new(0xFF0000))
-                .title("🗑️ Message personnalisé supprimé !")
-                .field("Type", message_type.to_string(), true);
+    if let Ok(_) = remove_custom_message(message_type).await {
+        let embed = CreateEmbed::new()
+            .colour(Colour::new(0xFF0000))
+            .title("🗑️ Message personnalisé supprimé !")
+            .field("Type", message_type.to_string(), true);
 
-            interaction
-                .create_response(
-                    &ctx,
-                    CreateInteractionResponse::Message(
-                        CreateInteractionResponseMessage::new()
-                            .embed(embed)
-                            .ephemeral(true),
-                    ),
-                )
-                .await?;
-        }
-        Err(e) => {
-            error!("Failed to remove custom message: {}", e);
-            interaction
-                .create_response(
-                    &ctx,
-                    CreateInteractionResponse::Message(
-                        CreateInteractionResponseMessage::new()
-                            .content("❌ Erreur lors de la suppression du message personnalisé !")
-                            .ephemeral(true),
-                    ),
-                )
-                .await?;
-        }
+        interaction
+            .create_response(
+                &ctx,
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new()
+                        .embed(embed)
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
+    } else {
+        error!("Failed to remove custom message");
+        interaction
+            .create_response(
+                &ctx,
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new()
+                        .content("❌ Erreur lors de la suppression du message personnalisé !")
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
     }
 
     info!(

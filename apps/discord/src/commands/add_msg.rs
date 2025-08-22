@@ -73,39 +73,36 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
     let user_id = interaction.user.id.get();
 
     // Save the custom message
-    match add_custom_message(user_id, message_type, message).await {
-        Ok(_) => {
-            let embed = CreateEmbed::new()
-                .colour(Colour::new(0x00FF00))
-                .title("✅ Message personnalisé ajouté !")
-                .field("Type", message_type.to_string(), true)
-                .field("Message", message.to_string(), false)
-                .field("Ajouté par", format!("<@{}>", user_id), true);
+    if let Ok(_) = add_custom_message(user_id, message_type, message).await {
+        let embed = CreateEmbed::new()
+            .colour(Colour::new(0x00FF00))
+            .title("✅ Message personnalisé ajouté !")
+            .field("Type", message_type.to_string(), true)
+            .field("Message", message.to_string(), false)
+            .field("Ajouté par", format!("<@{}>", user_id), true);
 
-            interaction
-                .create_response(
-                    &ctx,
-                    CreateInteractionResponse::Message(
-                        CreateInteractionResponseMessage::new()
-                            .embed(embed)
-                            .ephemeral(true),
-                    ),
-                )
-                .await?;
-        }
-        Err(e) => {
-            error!("Failed to add custom message: {}", e);
-            interaction
-                .create_response(
-                    &ctx,
-                    CreateInteractionResponse::Message(
-                        CreateInteractionResponseMessage::new()
-                            .content("❌ Erreur lors de l'ajout du message personnalisé !")
-                            .ephemeral(true),
-                    ),
-                )
-                .await?;
-        }
+        interaction
+            .create_response(
+                &ctx,
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new()
+                        .embed(embed)
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
+    } else {
+        error!("Failed to add custom message");
+        interaction
+            .create_response(
+                &ctx,
+                CreateInteractionResponse::Message(
+                    CreateInteractionResponseMessage::new()
+                        .content("❌ Erreur lors de l'ajout du message personnalisé !")
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
     }
 
     info!(

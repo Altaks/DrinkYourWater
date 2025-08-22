@@ -20,6 +20,7 @@ mod buttons;
 mod commands;
 mod data;
 mod database;
+mod helpers;
 mod logging;
 mod registry;
 mod reminder;
