@@ -10,44 +10,52 @@ use crate::database::add_custom_message;
 pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), serenity::Error> {
     let options = &interaction.data.options();
 
-    let message_type = if let Some(ResolvedOption {
-        value: ResolvedValue::String(msg_type),
-        ..
-    }) = options.iter().find(|opt| opt.name == "type")
-    {
-        msg_type
-    } else {
-        interaction
-            .create_response(
-                &ctx,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new()
-                        .content("❌ Type de message manquant !")
-                        .ephemeral(true),
-                ),
-            )
-            .await?;
-        return Ok(());
-    };
+    let (message_type, message) = {
+        let msg_type = options
+            .iter()
+            .find(|opt| opt.name == "type")
+            .and_then(|opt| {
+                if let ResolvedValue::String(s) = &opt.value {
+                    Some(s)
+                } else {
+                    None
+                }
+            });
 
-    let message = if let Some(ResolvedOption {
-        value: ResolvedValue::String(msg),
-        ..
-    }) = options.iter().find(|opt| opt.name == "message")
-    {
-        msg
-    } else {
-        interaction
-            .create_response(
-                &ctx,
-                CreateInteractionResponse::Message(
-                    CreateInteractionResponseMessage::new()
-                        .content("❌ Message manquant !")
-                        .ephemeral(true),
-                ),
-            )
-            .await?;
-        return Ok(());
+        let msg = options
+            .iter()
+            .find(|opt| opt.name == "message")
+            .and_then(|opt| {
+                if let ResolvedValue::String(s) = &opt.value {
+                    Some(s)
+                } else {
+                    None
+                }
+            });
+
+        let (msg_type, msg) = (msg_type, msg);
+
+        if msg_type.is_none() || msg.is_none() {
+            let error_msg = if msg_type.is_none() {
+                "❌ Type de message manquant !"
+            } else {
+                "❌ Message manquant !"
+            };
+
+            interaction
+                .create_response(
+                    &ctx,
+                    CreateInteractionResponse::Message(
+                        CreateInteractionResponseMessage::new()
+                            .content(error_msg)
+                            .ephemeral(true),
+                    ),
+                )
+                .await?;
+            return Ok(());
+        }
+
+        (msg_type.unwrap(), msg.unwrap())
     };
 
     // Validate message type
@@ -74,12 +82,14 @@ pub async fn run(ctx: &Context, interaction: &CommandInteraction) -> Result<(), 
 
     // Save the custom message
     if let Ok(_) = add_custom_message(user_id, message_type, message).await {
+        let format_user_mention = |user_id: u64| format!("<@{}>", user_id);
+
         let embed = CreateEmbed::new()
             .colour(Colour::new(0x00FF00))
             .title("✅ Message personnalisé ajouté !")
             .field("Type", message_type.to_string(), true)
             .field("Message", message.to_string(), false)
-            .field("Ajouté par", format!("<@{}>", user_id), true);
+            .field("Ajouté par", format_user_mention(user_id), true);
 
         interaction
             .create_response(
