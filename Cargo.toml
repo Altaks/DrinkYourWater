@@ -9,7 +9,7 @@ resolver = "3"
 members = ["apps/discord"]
 
 [workspace.dependencies]
-serenity = { version = "0.12.4", features = [
+serenity = { version = "0.12.5", features = [
     "client",
     "gateway",
     "model",
