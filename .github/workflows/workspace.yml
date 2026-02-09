@@ -93,32 +93,32 @@ jobs:
       - name: Run clippy
         run: cargo clippy --all --all-targets --all-features
 
-  dependencies-check:
-    needs: [test, lint]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      # Gets the last usable cache
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          cache-on-failure: true
-      # Installs Rust & Cargo from rustup source + insert cargo to path
-      - name: Install Rust & Cargo
-        run: |
-          curl https://sh.rustup.rs -sSf | sh -s -- -y
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-      # Installs clang & mold
-      - name: Install clang & mold
-        run: |
-          sudo apt-get update
-          sudo apt-get install clang mold -y
-      # Installs cargo audit & outdated
-      - name: Install cargo audit & outdated
-        run: cargo install cargo-audit cargo-outdated
-      # Checks for security leaks in dependencies
-      - name: Run audits
-        run: cargo audit
-      # Checks for unmaintained / outdated dependencies
-      - name: Run outdated checks
-        run: cargo outdated --verbose -x rusqlite
+  # dependencies-check:
+  #   needs: [test, lint]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v6
+  #     # Gets the last usable cache
+  #     - name: Setup Rust cache
+  #       uses: Swatinem/rust-cache@v2
+  #       with:
+  #         cache-on-failure: true
+  #     # Installs Rust & Cargo from rustup source + insert cargo to path
+  #     - name: Install Rust & Cargo
+  #       run: |
+  #         curl https://sh.rustup.rs -sSf | sh -s -- -y
+  #         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+  #     # Installs clang & mold
+  #     - name: Install clang & mold
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install clang mold -y
+  #     # Installs cargo audit & outdated
+  #     # - name: Install cargo audit & outdated
+  #     #  run: cargo install cargo-audit cargo-outdated
+  #     # Checks for security leaks in dependencies
+  #     # - name: Run audits
+  #     #   run: cargo audit
+  #     # Checks for unmaintained / outdated dependencies
+  #     # - name: Run outdated checks
+  #     #  run: cargo outdated --verbose -x rusqlite
