@@ -17,7 +17,7 @@ serenity = { version = "0.12.5", features = [
 ] }
 
 thiserror = { version = "2.0.18" }
-anyhow = "1.0.100"
+anyhow = "1.0.101"
 
 chrono = { version = "0.4.43" }
 
